@@ -13,6 +13,7 @@ const MovieDetails = () => {
   const [selectedMovie, setSelectedMovie] = useState(null);
   const [selectedMovieRating, setSelectedMovieRating] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
+  const [watchedMovieList, setWatchedMovieList] = useState([]);
   const dispatch = useDispatch();
   const selectedMovieId = useSelector(
     (state) => state.movieDetails.selectedMovieId
@@ -44,15 +45,19 @@ const MovieDetails = () => {
   };
 
   const handleRatingClick = () => {
-    dispatch(
-      addMovieToWatchedList({
-        title: Title,
-        poster: Poster,
-        runtime: Runtime,
-        userRating: selectedMovieRating,
-        imdbRating: imdbRating,
-        id: imdbID,
-      })
+    const movieWatched = {
+      title: Title,
+      poster: Poster,
+      runtime: Runtime,
+      userRating: selectedMovieRating,
+      imdbRating: imdbRating,
+      id: imdbID,
+    };
+    dispatch(addMovieToWatchedList(movieWatched));
+    setWatchedMovieList([...watchedMovieList, movieWatched]);
+    localStorage.setItem(
+      "watchedMovies",
+      JSON.stringify([...watchedMovieList, movieWatched])
     );
   };
 
@@ -75,8 +80,6 @@ const MovieDetails = () => {
     Released,
     imdbID,
   } = selectedMovie;
-
-  console.log("isLoading : ", isLoading);
 
   return (
     <>
