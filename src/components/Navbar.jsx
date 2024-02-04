@@ -23,8 +23,6 @@ const Navbar = () => {
 
     const json = await data.json();
 
-    console.log(json);
-
     if (json.Response === "True") {
       dispatch(addSearchMoviesResults(json.Search));
       setSearchedMovies(json.Search);
@@ -36,8 +34,6 @@ const Navbar = () => {
 
     return () => clearInterval(timer);
   }, [searchQuery]);
-
-  console.log(searchedMovies);
 
   return (
     <div className="flex items-center justify-between w-[97%] mx-auto px-8 py-3 m-5 bg-[#6741d9] rounded-lg">
@@ -52,12 +48,11 @@ const Navbar = () => {
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
         />
-        <button className="p-2 m-2" onClick={handleMovieSearchClick}>
-          Submit
-        </button>
       </div>
       <div className="w-2/12 text-end">
-        <h1 className="text-xl text-white">Found 0 results</h1>
+        <h1 className="text-lg text-white">
+          Found {searchedMovies.length} results
+        </h1>
       </div>
     </div>
   );
