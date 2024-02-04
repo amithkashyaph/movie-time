@@ -6,34 +6,12 @@ import {
 } from "../utils/store/searchMovieSlice";
 
 import { OMDB_API_KEY } from "../utils/constants";
+import { useSerachMovies } from "../hooks/useSearchMovies";
 
 const Navbar = () => {
   const [searchQuery, setSearchQuery] = useState("");
-  const [searchedMovies, setSearchedMovies] = useState([]);
 
-  const dispatch = useDispatch();
-
-  const handleMovieSearchClick = async () => {
-    if (!searchQuery) return;
-    dispatch(updateSearchQuery(searchQuery));
-
-    const data = await fetch(
-      `https://www.omdbapi.com/?apikey=${OMDB_API_KEY}&s=${searchQuery}`
-    );
-
-    const json = await data.json();
-
-    if (json.Response === "True") {
-      dispatch(addSearchMoviesResults(json.Search));
-      setSearchedMovies(json.Search);
-    }
-  };
-
-  useEffect(() => {
-    const timer = setTimeout(() => handleMovieSearchClick(), 300);
-
-    return () => clearInterval(timer);
-  }, [searchQuery]);
+  const [searchedMovies] = useSerachMovies(searchQuery);
 
   return (
     <div className="flex items-center justify-between w-[97%] mx-auto px-8 py-3 m-5 bg-[#6741d9] rounded-lg">
