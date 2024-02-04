@@ -87,11 +87,6 @@ const SearchMovieList = () => {
     (state) => state.search.searchQueryResults
   );
 
-  //   if (!searchMovieResults || searchMovieResults.length === 0) {
-  //     return;
-  //   }
-
-  console.log("searchMovieResults : ", searchMovieResults);
   return (
     <div className="w-1/2 flex-col p-2 bg-[#2b3035] rounded-xl h-[90vh] overflow-y-scroll">
       {searchMovieResults?.map((movie) => (
