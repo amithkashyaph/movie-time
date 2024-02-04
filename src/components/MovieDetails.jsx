@@ -1,10 +1,18 @@
 import React, { useEffect, useState } from "react";
 import { OMDB_API_KEY } from "../utils/constants";
 import { useDispatch, useSelector } from "react-redux";
-import { updateSelectedMovie } from "../utils/store/movieDetailsSlice";
+import {
+  updateSelectedMovie,
+  updateSelectedMovieId,
+} from "../utils/store/movieDetailsSlice";
+import MovieDetailsCard from "./MovieDetailsCard";
+import StarRating from "./StarRating";
+import { addMovieToWatchedList } from "../utils/store/watchedMoviesSlice";
 
 const MovieDetails = () => {
   const [selectedMovie, setSelectedMovie] = useState(null);
+  const [selectedMovieRating, setSelectedMovieRating] = useState(0);
+  const [isLoading, setIsLoading] = useState(true);
   const dispatch = useDispatch();
   const selectedMovieId = useSelector(
     (state) => state.movieDetails.selectedMovieId
@@ -14,20 +22,45 @@ const MovieDetails = () => {
     if (!selectedMovieId) {
       return;
     }
+    setIsLoading(true);
     fetchMovieDetails();
+
+    return () => {
+      setSelectedMovieRating(0);
+      setSelectedMovie(null);
+      setIsLoading(true);
+    };
   }, [selectedMovieId]);
 
   const fetchMovieDetails = async () => {
     const res = await fetch(
       `https://www.omdbapi.com/?apikey=${OMDB_API_KEY}&i=${selectedMovieId}`
     );
-    const data = await res.json();
+    const movieData = await res.json();
 
-    dispatch(updateSelectedMovie(data));
-    setSelectedMovie(data);
+    dispatch(updateSelectedMovie(movieData));
+    setSelectedMovie(movieData);
+    setIsLoading(false);
   };
 
-  if (!selectedMovie) return;
+  const handleRatingClick = () => {
+    dispatch(
+      addMovieToWatchedList({
+        title: Title,
+        poster: Poster,
+        runtime: Runtime,
+        userRating: selectedMovieRating,
+        imdbRating: imdbRating,
+        id: imdbID,
+      })
+    );
+  };
+
+  if (!selectedMovie) {
+    return (
+      <h1 className="text-2xl flex justify-center w-full mt-7">Loading...</h1>
+    );
+  }
 
   const {
     Title,
@@ -40,21 +73,38 @@ const MovieDetails = () => {
     imdbRating,
     Director,
     Released,
+    imdbID,
   } = selectedMovie;
+
+  console.log("isLoading : ", isLoading);
+
   return (
-    <div className="flex w-full ">
-      <div>
-        <img src={Poster} alt="movie poster" className="w-[150px]" />
-      </div>
-      <div className="text-left px-6 py-7">
-        <h1 className="text-3xl mb-4">{Title}</h1>
-        <h3 className="mb-4">
-          {Released} . {Runtime}
-        </h3>
-        <h4 className="mb-2">{Genre}</h4>
-        <h4 className="mb-4">⭐️ Imdb rating : {imdbRating}</h4>
-      </div>
-    </div>
+    <>
+      {isLoading ? (
+        <h1 className="text-white">Loading</h1>
+      ) : (
+        <>
+          <MovieDetailsCard
+            poster={Poster}
+            title={Title}
+            imdbRating={imdbRating}
+            runtime={Runtime}
+            genre={Genre}
+            released={Released}
+          />
+          <StarRating
+            max={10}
+            color="orange"
+            onRatingSelect={setSelectedMovieRating}
+            selectedMovieRating={selectedMovieRating}
+            onRatingClick={handleRatingClick}
+          />
+          <h4 className="mx-8 italic mb-5">{Plot}</h4>
+          <h4 className="mx-8 mb-5">Starring {Actors}</h4>
+          <h4 className="mx-8">Directed by {Director}</h4>
+        </>
+      )}
+    </>
   );
 };
 
