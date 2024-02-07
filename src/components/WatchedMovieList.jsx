@@ -1,25 +1,40 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import MovieDetails from "./MovieDetails";
 import { useSelector } from "react-redux";
 import WatchedMovieCard from "./WatchedMovieCard";
 
 const WatchedMovieList = () => {
-  const watchedMovies = useSelector(
-    (state) => state.watchedMovies.watchedMovies
-  );
+  // const watchedMovies = useSelector(
+  //   (state) => state.watchedMovies.watchedMovies
+  // );
 
-  if (!watchedMovies.length) {
+  const [storedWatchedMovieList, setStoredWatchedMovieList] = useState(() => {
+    const watchedMovies = localStorage.getItem("watchedMovies");
+    return JSON.parse(watchedMovies) || [];
+  });
+
+  useEffect(() => {
+    if (!storedWatchedMovieList.length) {
+      return;
+    }
+    const moviesWatched = localStorage.getItem("watchedMovies");
+    setStoredWatchedMovieList(JSON.parse(moviesWatched));
+  }, []);
+
+  if (!storedWatchedMovieList.length) {
     return;
   }
+
+  console.log("storedWatchedMovieList : ", storedWatchedMovieList);
 
   const averageImdbRating = () => {
     let initialValue = 0;
 
     let avgRating =
-      watchedMovies.reduce(
+      storedWatchedMovieList.reduce(
         (a, m) => parseFloat(m.imdbRating) + a,
         initialValue
-      ) / watchedMovies.length;
+      ) / storedWatchedMovieList.length;
 
     return avgRating;
   };
@@ -27,15 +42,15 @@ const WatchedMovieList = () => {
   const averageUserRating = () => {
     let initialValue = 0;
     return (
-      watchedMovies.reduce((a, m) => m.userRating + a, initialValue) /
-      watchedMovies.length
+      storedWatchedMovieList.reduce((a, m) => m.userRating + a, initialValue) /
+      storedWatchedMovieList.length
     );
   };
 
   const totalRuntime = () => {
     let initialValue = 0;
 
-    let totalRuntimeVal = watchedMovies.reduce(
+    let totalRuntimeVal = storedWatchedMovieList.reduce(
       (a, m) => parseFloat(m.runtime.split(" ").at(0)) + a,
       initialValue
     );
@@ -47,7 +62,7 @@ const WatchedMovieList = () => {
       <div className="p-4 bg-[#3d444b] rounded-xl shadow-xl mb-5">
         <h1 className="text-xl mb-4">You have watched : </h1>
         <div className="flex justify-between">
-          <h5>#️⃣ {watchedMovies.length} movies</h5>
+          <h5>#️⃣ {storedWatchedMovieList.length} movies</h5>
           <h5>⭐️ {parseFloat(averageImdbRating()).toFixed(2)}</h5>
           <h5>🌟 {parseFloat(averageUserRating()).toFixed(2)}</h5>
           <h5>⏳ {parseFloat(totalRuntime()).toFixed(2)} min</h5>
@@ -55,7 +70,7 @@ const WatchedMovieList = () => {
       </div>
 
       <div>
-        {watchedMovies.map((m, i) => (
+        {storedWatchedMovieList.map((m, i) => (
           <WatchedMovieCard movie={m} key={i} />
         ))}
       </div>
